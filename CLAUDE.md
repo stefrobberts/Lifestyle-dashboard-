@@ -144,7 +144,7 @@ Vormen en beweging:
 ## Voortgang
 
 * [x] Fase 1: basis, login, design system, navigatiebalk, snelle actieknop, pagina Vandaag met dagelijkse taken
-* [ ] Fase 2: voeding (dagboek, calorieën, recepten, barcode scannen)
+* [x] Fase 2: voeding (dagboek, calorieën, recepten, barcode scannen)
 * [ ] Fase 3: sport (schema's, workout modus, analyses)
 * [ ] Fase 4: werk (takenlijst, LinkedIn ideeën, notities, Inbox)
 * [ ] Fase 5: metingen en progressiefoto's
@@ -169,11 +169,29 @@ Gebouwd:
 * Geverifieerd: `npm run build` en `npm run lint` slagen zonder fouten of waarschuwingen. Visueel getest op 390×844 in Chrome headless (donker én licht) voor login, Vandaag (met echte data via een tijdelijk testaccount) en de kaartensectie — geen Engelse tekst, geen horizontale overflow, correcte kleuren en typografie.
 
 Openstaand / bewust uitgesteld:
-* De FAB-tegels voor Maaltijd loggen, Workout starten, Gewicht invoeren, Progressiefoto maken, Werktaak toevoegen, LinkedIn idee en Titel toevoegen worden pas functioneel zodra hun module gebouwd is (fase 2–6).
+* De FAB-tegels voor Workout starten, Gewicht invoeren, Progressiefoto maken, Werktaak toevoegen, LinkedIn idee en Titel toevoegen worden pas functioneel zodra hun module gebouwd is (fase 3–6). Maaltijd loggen is sinds fase 2 wel functioneel.
 * Server-push notificaties (herinneringen bij taken) komen in fase 7, samen met service worker en offline-ondersteuning.
 * De uitgebreide Instellingen-pagina (doelen, werkcategorieën, export) komt in fase 8.
 * Swipe-gebaren zijn nog niet met de hand getest op een echt touchscreen (alleen de tap- en klikvarianten zijn geverifieerd) — controleer dit bij het eerste gebruik op je telefoon.
 * Er is nog geen automatische testsuite; correctheid is nu geverifieerd via build/lint plus handmatige/visuele controle.
+
+**Fase 2 (2026-09-20):**
+
+Gebouwd:
+* Migratie `0002_voeding.sql`: `products`, `recipes`, `recipe_ingredients`, `food_diary_entries` (RLS overal aan, snapshot-macro's op dagboekregels zodat latere wijzigingen aan een recept het verleden niet aanpassen) en de privé storage bucket `recipe-photos`.
+* `lib/nutrition.ts`: pure, testbare macroberekeningen (per hoeveelheid, per portie, dagtotalen, weekgemiddelden). `lib/openFoodFacts.ts`: wrapper rond de publieke Open Food Facts API.
+* Voedingsdagboek (`/voeding`): loggen per maaltijd (ontbijt/lunch/diner/snack), swipe-links om te verwijderen, "kopieer van gisteren", dagtotalen tegenover de doelen uit `user_settings`.
+* `LogFoodSheet`: zoeken in eigen producten + Open Food Facts, barcode scannen via **@zxing/browser** (nieuwe dependency, werkt ook op iOS Safari), eigen product toevoegen, of een eigen recept kiezen.
+* Recepten (`/voeding/recepten`): lijst, detail met automatisch berekende macro's per portie, aanmaken/bewerken met camera-foto (`capture="environment"`) en een ingrediëntenzoeker, favorieten, "log als maaltijd".
+* Weekoverzicht (`/voeding/week`): Recharts-staafgrafiek per dag met doellijn, gemiddelden per macro.
+* `NutritionCard` op Vandaag vervangt de placeholder-kaart "Voeding" met echte calorieën/eiwit van vandaag. FAB-tegel "Maaltijd loggen" is nu functioneel.
+* 3 voorbeeldrecepten (havermout met fruit en noten, kipfilet met rijst en broccoli, Griekse yoghurt met granola) worden automatisch aangemaakt bij het eerste bezoek aan Voeding, met een "Voorbeeldrecepten wissen"-knop in Instellingen.
+* Geverifieerd: build en lint slagen, en een volledige doorloop (recept aanmaken via voorbeelddata → loggen als maaltijd → dagboek klopt → Vandaag-kaart klopt → weekgrafiek klopt) is getest via een tijdelijk testaccount in donker en licht thema op 390×844.
+
+Openstaand / bewust uitgesteld:
+* Barcode scannen (`BarcodeScanner.tsx`) kon niet automatisch getest worden zonder een echte camera/telefoon — test dit zelf even bij het eerste gebruik.
+* Eén Open Food Facts-zoekopdracht is handmatig gecontroleerd; het blijft een externe dienst die af en toe onvolledige voedingswaarden teruggeeft (dan valt de kcal-waarde weg uit de resultaten, zie `mapOffProduct`).
+* Er is geen productbeheerscherm (bewerken/verwijderen van eigen producten) — dat kan eventueel later in Instellingen.
 
 ## Ideeën voor later
 

@@ -89,7 +89,8 @@ export default async function ReceptDetailPage(props: PageProps<"/voeding/recept
           </div>
         </div>
         <p className="-mt-4 text-center text-xs text-muted-foreground">
-          per portie · {recipe.servings} porties totaal
+          per portie · {recipe.servings}{" "}
+          {recipe.servings === 1 ? "portie" : "porties"} totaal
         </p>
 
         <LogRecipeButton recipeId={recipe.id} />
