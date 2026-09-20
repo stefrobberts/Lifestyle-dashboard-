@@ -23,14 +23,24 @@ const DEFAULT_CARD_KEYS = [
   "gewicht",
 ] as const;
 
-/** Zorgt dat een nieuwe gebruiker een standaard checklist, kaartvolgorde en instellingen heeft. */
+/**
+ * Zorgt dat een nieuwe gebruiker een standaard checklist, kaartvolgorde en
+ * instellingen heeft. Race-veilig: de unieke `user_id`-constraint op
+ * `user_settings` zorgt dat bij gelijktijdige requests (bv. snel wisselen
+ * tussen tabs) maar één daarvan de voorbeelddata aanmaakt — de rest krijgt
+ * een unique-violation-foutcode (23505) en doet niets.
+ */
 export async function ensureDefaultData(supabase: Client, userId: string) {
-  const { count: taskCount } = await supabase
-    .from("daily_task_definitions")
-    .select("id", { count: "exact", head: true });
+  const { error } = await supabase
+    .from("user_settings")
+    .insert({ user_id: userId });
 
-  if (!taskCount) {
-    await supabase.from("daily_task_definitions").insert(
+  const alreadyExists = error?.code === "23505";
+  if (error && !alreadyExists) return;
+  if (alreadyExists) return;
+
+  await Promise.all([
+    supabase.from("daily_task_definitions").insert(
       DEFAULT_TASKS.map((task, index) => ({
         user_id: userId,
         title: task.title,
@@ -38,30 +48,15 @@ export async function ensureDefaultData(supabase: Client, userId: string) {
         frequency_type: "daily" as const,
         sort_order: index,
       }))
-    );
-  }
-
-  const { count: cardCount } = await supabase
-    .from("dashboard_card_prefs")
-    .select("id", { count: "exact", head: true });
-
-  if (!cardCount) {
-    await supabase.from("dashboard_card_prefs").insert(
+    ),
+    supabase.from("dashboard_card_prefs").insert(
       DEFAULT_CARD_KEYS.map((cardKey, index) => ({
         user_id: userId,
         card_key: cardKey,
         sort_order: index,
       }))
-    );
-  }
-
-  const { count: settingsCount } = await supabase
-    .from("user_settings")
-    .select("id", { count: "exact", head: true });
-
-  if (!settingsCount) {
-    await supabase.from("user_settings").insert({ user_id: userId });
-  }
+    ),
+  ]);
 }
 
 export async function fetchVandaagData(supabase: Client) {

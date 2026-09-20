@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Barcode, Plus, Search, Star } from "lucide-react";
+import { Barcode, Plus, Star } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -26,6 +26,7 @@ import {
 } from "@/app/(app)/voeding/recepten/actions";
 import { logProduct, logRecipe } from "@/app/(app)/voeding/actions";
 import { BarcodeScanner } from "@/components/voeding/BarcodeScanner";
+import { SearchInput } from "@/components/voeding/SearchInput";
 
 type MealType = "ontbijt" | "lunch" | "diner" | "snack";
 
@@ -219,18 +220,14 @@ export function LogFoodSheet({
               </div>
 
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder={
-                      tab === "producten" ? "Zoek een product…" : "Zoek een recept…"
-                    }
-                    className="h-11 rounded-[12px] pl-9 text-base"
-                    autoFocus
-                  />
-                </div>
+                <SearchInput
+                  value={query}
+                  onChange={setQuery}
+                  placeholder={
+                    tab === "producten" ? "Zoek een product…" : "Zoek een recept…"
+                  }
+                  autoFocus
+                />
                 {tab === "producten" && (
                   <Button
                     type="button"

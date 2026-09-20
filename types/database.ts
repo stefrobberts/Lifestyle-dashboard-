@@ -375,6 +375,7 @@ export type Database = {
           fat_goal_g: number | null
           id: string
           protein_goal_g: number
+          sample_recipes_seeded: boolean
           theme: string
           updated_at: string
           user_id: string
@@ -386,6 +387,7 @@ export type Database = {
           fat_goal_g?: number | null
           id?: string
           protein_goal_g?: number
+          sample_recipes_seeded?: boolean
           theme?: string
           updated_at?: string
           user_id: string
@@ -397,6 +399,7 @@ export type Database = {
           fat_goal_g?: number | null
           id?: string
           protein_goal_g?: number
+          sample_recipes_seeded?: boolean
           theme?: string
           updated_at?: string
           user_id?: string

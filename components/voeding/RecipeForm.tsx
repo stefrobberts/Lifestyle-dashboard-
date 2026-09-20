@@ -2,12 +2,13 @@
 
 import { useActionState, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Camera, Plus, Search, X } from "lucide-react";
+import { Camera, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { searchProducts, type SearchResultProduct } from "@/lib/data/products";
+import { SearchInput } from "@/components/voeding/SearchInput";
 import { calculateRecipeMacros } from "@/lib/nutrition";
 import type { RecipeTag } from "@/lib/validations/recipe";
 
@@ -261,15 +262,11 @@ export function RecipeForm({
           </div>
         )}
 
-        <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={ingredientQuery}
-            onChange={(e) => handleIngredientSearch(e.target.value)}
-            placeholder="Zoek een ingrediënt…"
-            className="h-11 rounded-[12px] pl-9 text-base"
-          />
-        </div>
+        <SearchInput
+          value={ingredientQuery}
+          onChange={handleIngredientSearch}
+          placeholder="Zoek een ingrediënt…"
+        />
 
         {searching && (
           <p className="text-center text-sm text-muted-foreground">Zoeken…</p>

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ensureDefaultData } from "@/lib/data/vandaag";
 import { ensureDefaultRecipes, fetchDiaryForDate } from "@/lib/data/voeding";
 import { dateKey } from "@/lib/date";
 import { VoedingDiary } from "@/components/voeding/VoedingDiary";
@@ -11,6 +12,9 @@ export default async function VoedingPage() {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
+  // ensureDefaultData zorgt dat user_settings bestaat, ook als iemand ooit
+  // rechtstreeks op Voeding uitkomt zonder eerst Vandaag te bezoeken.
+  await ensureDefaultData(supabase, user.id);
   await ensureDefaultRecipes(supabase, user.id);
 
   const todayKey = dateKey(new Date());

@@ -65,13 +65,21 @@ const SEED_PRODUCTS: Record<
   honing: { name: "Honing", calories: 304, protein: 0.3, carbs: 82, fat: 0 },
 };
 
-/** Vult de app bij de eerste keer met een paar realistische voorbeeldrecepten. */
+/**
+ * Vult de app bij de eerste keer met een paar realistische voorbeeldrecepten.
+ * Race-veilig via een conditionele update: alleen de aanroep die de vlag
+ * daadwerkelijk van false naar true zet (en dus een rij terugkrijgt) mag
+ * seeden. Bij gelijktijdige requests verliest de rest de "claim" en doet niets.
+ */
 export async function ensureDefaultRecipes(supabase: Client, userId: string) {
-  const { count } = await supabase
-    .from("recipes")
-    .select("id", { count: "exact", head: true });
+  const { data: claimed } = await supabase
+    .from("user_settings")
+    .update({ sample_recipes_seeded: true })
+    .eq("user_id", userId)
+    .eq("sample_recipes_seeded", false)
+    .select("id");
 
-  if (count) return;
+  if (!claimed || claimed.length === 0) return;
 
   const { data: insertedProducts, error: productsError } = await supabase
     .from("products")
@@ -101,6 +109,8 @@ export async function ensureDefaultRecipes(supabase: Client, userId: string) {
       title: "Havermout met fruit en noten",
       servings: 1,
       tags: ["ontbijt"],
+      instructions:
+        "Breng de melk in een steelpan aan de kook. Voeg de havermout toe en laat op laag vuur ongeveer 5 minuten sudderen, af en toe roeren tot een romige pap ontstaat. Schep de havermout in een kom. Snijd de banaan in plakjes en verdeel die met de amandelen over de pap.",
       ingredients: [
         { key: "havermout" as const, grams: 50 },
         { key: "halfvolle_melk" as const, grams: 200 },
@@ -112,6 +122,8 @@ export async function ensureDefaultRecipes(supabase: Client, userId: string) {
       title: "Kipfilet met rijst en broccoli",
       servings: 1,
       tags: ["diner", "eiwitrijk"],
+      instructions:
+        "Kook de zilvervliesrijst volgens de aanwijzingen op de verpakking. Snijd de broccoli in roosjes en stoom of kook ze in ongeveer 5 minuten beetgaar. Bestrooi de kipfilet met peper en zout en bak 'm in een klein scheutje olie op middelhoog vuur 6 tot 8 minuten per kant gaar. Serveer de kipfilet met de rijst en broccoli.",
       ingredients: [
         { key: "kipfilet" as const, grams: 150 },
         { key: "zilvervliesrijst" as const, grams: 150 },
@@ -122,6 +134,8 @@ export async function ensureDefaultRecipes(supabase: Client, userId: string) {
       title: "Griekse yoghurt met granola",
       servings: 1,
       tags: ["ontbijt", "snack", "eiwitrijk"],
+      instructions:
+        "Schep de Griekse yoghurt in een kom. Verdeel de granola erover en besprenkel alles met de honing. Direct serveren.",
       ingredients: [
         { key: "griekse_yoghurt" as const, grams: 200 },
         { key: "granola" as const, grams: 40 },
@@ -138,6 +152,7 @@ export async function ensureDefaultRecipes(supabase: Client, userId: string) {
         title: recipe.title,
         servings: recipe.servings,
         tags: recipe.tags,
+        instructions: recipe.instructions,
       })
       .select("id")
       .single();
