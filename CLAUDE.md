@@ -143,7 +143,7 @@ Vormen en beweging:
 
 ## Voortgang
 
-* [ ] Fase 1: basis, login, design system, navigatiebalk, snelle actieknop, pagina Vandaag met dagelijkse taken
+* [x] Fase 1: basis, login, design system, navigatiebalk, snelle actieknop, pagina Vandaag met dagelijkse taken
 * [ ] Fase 2: voeding (dagboek, calorieën, recepten, barcode scannen)
 * [ ] Fase 3: sport (schema's, workout modus, analyses)
 * [ ] Fase 4: werk (takenlijst, LinkedIn ideeën, notities, Inbox)
@@ -153,6 +153,27 @@ Vormen en beweging:
 
 Notities per fase:
 (Claude Code vult dit aan na elke afgeronde fase)
+
+**Fase 1 (2026-09-20):**
+
+Gebouwd:
+* Next.js 16 (App Router, Turbopack) + TypeScript strict + Tailwind v4 + shadcn/ui ("base-nova" stijl, gebouwd op Base UI in plaats van Radix — nieuwe major van shadcn/ui).
+* Design system in `app/globals.css`: alle kleuren uit dit document als CSS-variabelen, donker als standaard via `next-themes` (met class-strategie), licht als optie. Fonts via `next/font`: Plus Jakarta Sans (`--font-heading`) en Inter (`--font-body`).
+* Supabase magic link login (`app/login`, `app/auth/confirm`), sessiebeheer via `@supabase/ssr` en `proxy.ts` (Next 16's vervanger van `middleware.ts`) die onbeveiligde routes naar `/login` stuurt.
+* Migratie `supabase/migrations/0001_init.sql`: `daily_task_definitions`, `daily_task_logs`, `dashboard_card_prefs`, `user_settings`, `inbox_notes` — RLS overal aan, eigenaar-only policies, `set_updated_at`-trigger. Toegepast op het gehoste project.
+* Navigatiebalk (5 tabs) en contextbewuste snelle actieknop met bottom sheet (8 tegels; alleen "Notitie" is nu functioneel en schrijft naar `inbox_notes`, de rest toont "binnenkort"). Lang indrukken opent direct de notitie. PWA-manifest-snelkoppeling "Taak toevoegen" opent de Vandaag-pagina met het taakformulier meteen open.
+* Pagina Vandaag: volledig functionele dagelijkse checklist (supplementen/verzorging/eigen taken) met alle drie frequentietypes, streaks, voortgangsring, swipe rechts=afvinken/links=verwijderen (met bevestiging), trilfeedback, en een taakformulier (bottom sheet) voor toevoegen/bewerken. Standaardchecklist (Vitamine D, Creatine, Eiwitpoeder, Dagcrème, Serum) wordt automatisch aangemaakt bij de eerste keer inloggen.
+* Kaarten voor Voeding/Sport/Werk/Verzorging/Gewichtsverloop op Vandaag als nette lege staten (met uitleg welke fase ze vult), sorteerbaar en te verbergen via een "Kaarten aanpassen" bottom sheet (sleep om te herordenen).
+* Pagina's Voeding, Sport, Werk en de Meer-submodules bestaan als placeholder met duidelijke "binnenkort"-uitleg. Instellingen heeft nu al een werkende thema-wisselaar en uitlogknop.
+* PWA-basis: `app/manifest.ts`, gegenereerde app-iconen (192/512/maskable/apple-touch-icon), thema-kleur, viewport-fit=cover, safe-area utilities.
+* Geverifieerd: `npm run build` en `npm run lint` slagen zonder fouten of waarschuwingen. Visueel getest op 390×844 in Chrome headless (donker én licht) voor login, Vandaag (met echte data via een tijdelijk testaccount) en de kaartensectie — geen Engelse tekst, geen horizontale overflow, correcte kleuren en typografie.
+
+Openstaand / bewust uitgesteld:
+* De FAB-tegels voor Maaltijd loggen, Workout starten, Gewicht invoeren, Progressiefoto maken, Werktaak toevoegen, LinkedIn idee en Titel toevoegen worden pas functioneel zodra hun module gebouwd is (fase 2–6).
+* Server-push notificaties (herinneringen bij taken) komen in fase 7, samen met service worker en offline-ondersteuning.
+* De uitgebreide Instellingen-pagina (doelen, werkcategorieën, export) komt in fase 8.
+* Swipe-gebaren zijn nog niet met de hand getest op een echt touchscreen (alleen de tap- en klikvarianten zijn geverifieerd) — controleer dit bij het eerste gebruik op je telefoon.
+* Er is nog geen automatische testsuite; correctheid is nu geverifieerd via build/lint plus handmatige/visuele controle.
 
 ## Ideeën voor later
 
