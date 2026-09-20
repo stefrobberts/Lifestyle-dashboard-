@@ -21,7 +21,7 @@ Een persoonlijk lifestyle dashboard als PWA, uitsluitend bedoeld voor gebruik op
 * Tailwind CSS met shadcn/ui componenten
 * Recharts voor grafieken
 * Framer Motion voor animaties en gebaren
-* Supabase voor database, login via magic link en opslag van foto's
+* Supabase voor database, login via e-mail en wachtwoord en opslag van foto's
 * Zod voor validatie van alle formulieren en server acties
 * PWA met manifest, app icoon, splash screen, snelkoppelingen en pushnotificaties
 * Hosting op Vercel, code op GitHub
@@ -159,7 +159,7 @@ Notities per fase:
 Gebouwd:
 * Next.js 16 (App Router, Turbopack) + TypeScript strict + Tailwind v4 + shadcn/ui ("base-nova" stijl, gebouwd op Base UI in plaats van Radix — nieuwe major van shadcn/ui).
 * Design system in `app/globals.css`: alle kleuren uit dit document als CSS-variabelen, donker als standaard via `next-themes` (met class-strategie), licht als optie. Fonts via `next/font`: Plus Jakarta Sans (`--font-heading`) en Inter (`--font-body`).
-* Supabase magic link login (`app/login`, `app/auth/confirm`), sessiebeheer via `@supabase/ssr` en `proxy.ts` (Next 16's vervanger van `middleware.ts`) die onbeveiligde routes naar `/login` stuurt.
+* Supabase login via e-mail en wachtwoord (`app/login`), sessiebeheer via `@supabase/ssr` en `proxy.ts` (Next 16's vervanger van `middleware.ts`) die onbeveiligde routes naar `/login` stuurt. **Gewijzigd van de oorspronkelijke magic-link opzet**: Supabase's gratis mailer stuurt maar 2 e-mails per uur en de redirect-URL moest telkens los worden toegestaan, wat voor een app die je alleen op je eigen telefoon gebruikt onnodige frictie gaf. Er is geen openbare registratiepagina — het ene account is via de Supabase Admin API aangemaakt.
 * Migratie `supabase/migrations/0001_init.sql`: `daily_task_definitions`, `daily_task_logs`, `dashboard_card_prefs`, `user_settings`, `inbox_notes` — RLS overal aan, eigenaar-only policies, `set_updated_at`-trigger. Toegepast op het gehoste project.
 * Navigatiebalk (5 tabs) en contextbewuste snelle actieknop met bottom sheet (8 tegels; alleen "Notitie" is nu functioneel en schrijft naar `inbox_notes`, de rest toont "binnenkort"). Lang indrukken opent direct de notitie. PWA-manifest-snelkoppeling "Taak toevoegen" opent de Vandaag-pagina met het taakformulier meteen open.
 * Pagina Vandaag: volledig functionele dagelijkse checklist (supplementen/verzorging/eigen taken) met alle drie frequentietypes, streaks, voortgangsring, swipe rechts=afvinken/links=verwijderen (met bevestiging), trilfeedback, en een taakformulier (bottom sheet) voor toevoegen/bewerken. Standaardchecklist (Vitamine D, Creatine, Eiwitpoeder, Dagcrème, Serum) wordt automatisch aangemaakt bij de eerste keer inloggen.

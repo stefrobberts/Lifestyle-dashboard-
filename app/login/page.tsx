@@ -1,9 +1,6 @@
 import { LoginForm } from "@/components/auth/LoginForm";
 
-export default async function LoginPage(props: PageProps<"/login">) {
-  const searchParams = await props.searchParams;
-  const heeftOngeldigeLink = searchParams.fout === "ongeldige-link";
-
+export default function LoginPage() {
   return (
     <main className="flex min-h-svh flex-col items-center justify-center px-6 py-12 safe-top safe-bottom">
       <div className="flex w-full max-w-sm flex-col gap-8">
@@ -13,19 +10,9 @@ export default async function LoginPage(props: PageProps<"/login">) {
           </div>
           <h1 className="font-heading text-2xl font-semibold">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
-            Log in met een magic link om verder te gaan.
+            Log in om verder te gaan.
           </p>
         </div>
-
-        {heeftOngeldigeLink && (
-          <p
-            role="alert"
-            className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm text-destructive"
-          >
-            Deze inloglink is verlopen of ongeldig. Vraag hieronder een
-            nieuwe aan.
-          </p>
-        )}
 
         <LoginForm />
       </div>

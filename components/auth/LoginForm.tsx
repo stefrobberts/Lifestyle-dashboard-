@@ -1,57 +1,33 @@
 "use client";
 
 import { useActionState } from "react";
-import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { requestMagicLink } from "@/app/login/actions";
+import { signIn } from "@/app/login/actions";
 
-type FormState = {
-  status: "idle" | "success" | "error";
-  message?: string;
-  email?: string;
-};
+type FormState = { status: "idle" | "error"; message?: string };
 
 const initialState: FormState = { status: "idle" };
 
-async function submitMagicLink(
+async function submitLogin(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const email = String(formData.get("email") ?? "");
-  const result = await requestMagicLink(formData);
+  const result = await signIn(formData);
 
-  if (result.success) {
-    return { status: "success", email };
+  if (!result.success) {
+    return { status: "error", message: result.error };
   }
 
-  return { status: "error", message: result.error };
+  return { status: "idle" };
 }
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState(
-    submitMagicLink,
+    submitLogin,
     initialState
   );
-
-  if (state.status === "success") {
-    return (
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card px-6 py-8 text-center">
-        <div className="flex size-12 items-center justify-center rounded-full bg-success/15 text-success">
-          <Mail className="size-6" />
-        </div>
-        <h2 className="font-heading text-lg font-semibold">
-          Check je e-mail
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          We hebben een inloglink gestuurd naar{" "}
-          <span className="text-foreground">{state.email}</span>. Open je
-          mail op deze telefoon en tik op de link om in te loggen.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -69,6 +45,19 @@ export function LoginForm() {
         />
       </div>
 
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="password">Wachtwoord</Label>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          minLength={6}
+          className="h-11 rounded-[12px] text-base"
+        />
+      </div>
+
       {state.status === "error" && (
         <p role="alert" className="text-sm text-destructive">
           {state.message}
@@ -80,7 +69,7 @@ export function LoginForm() {
         disabled={isPending}
         className="h-11 w-full rounded-[12px] text-base"
       >
-        {isPending ? "Bezig met versturen…" : "Stuur inloglink"}
+        {isPending ? "Bezig met inloggen…" : "Inloggen"}
       </Button>
     </form>
   );

@@ -1,41 +1,33 @@
 "use server";
 
-import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { magicLinkSchema } from "@/lib/validations/auth";
+import { loginSchema } from "@/lib/validations/auth";
 
-type RequestMagicLinkResult =
-  | { success: true }
-  | { success: false; error: string };
+type SignInResult = { success: true } | { success: false; error: string };
 
-export async function requestMagicLink(
-  formData: FormData
-): Promise<RequestMagicLinkResult> {
-  const parsed = magicLinkSchema.safeParse({
+export async function signIn(formData: FormData): Promise<SignInResult> {
+  const parsed = loginSchema.safeParse({
     email: formData.get("email"),
+    password: formData.get("password"),
   });
 
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }
 
-  const headerList = await headers();
-  const origin = headerList.get("origin");
-
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
+  const { error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
-    options: {
-      emailRedirectTo: `${origin}/auth/confirm`,
-    },
+    password: parsed.data.password,
   });
 
   if (error) {
     return {
       success: false,
-      error: "Het versturen van de inloglink is niet gelukt. Probeer het opnieuw.",
+      error: "E-mailadres of wachtwoord is onjuist.",
     };
   }
 
-  return { success: true };
+  redirect("/vandaag");
 }
