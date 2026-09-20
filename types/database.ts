@@ -130,6 +130,78 @@ export type Database = {
         }
         Relationships: []
       }
+      food_diary_entries: {
+        Row: {
+          calories: number
+          carbs_g: number
+          created_at: string
+          entry_date: string
+          fat_g: number
+          id: string
+          logged_at: string
+          meal_type: string
+          product_id: string | null
+          protein_g: number
+          quantity_g: number | null
+          recipe_id: string | null
+          servings: number | null
+          source_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calories: number
+          carbs_g: number
+          created_at?: string
+          entry_date: string
+          fat_g: number
+          id?: string
+          logged_at?: string
+          meal_type: string
+          product_id?: string | null
+          protein_g: number
+          quantity_g?: number | null
+          recipe_id?: string | null
+          servings?: number | null
+          source_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number
+          created_at?: string
+          entry_date?: string
+          fat_g?: number
+          id?: string
+          logged_at?: string
+          meal_type?: string
+          product_id?: string | null
+          protein_g?: number
+          quantity_g?: number | null
+          recipe_id?: string | null
+          servings?: number | null
+          source_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_diary_entries_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_diary_entries_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inbox_notes: {
         Row: {
           content: string
@@ -152,6 +224,144 @@ export type Database = {
           created_at?: string
           id?: string
           is_processed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          brand: string | null
+          calories_per_100g: number
+          carbs_per_100g: number
+          created_at: string
+          default_portion_g: number | null
+          fat_per_100g: number
+          id: string
+          is_favorite: boolean
+          name: string
+          off_barcode: string | null
+          protein_per_100g: number
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand?: string | null
+          calories_per_100g: number
+          carbs_per_100g: number
+          created_at?: string
+          default_portion_g?: number | null
+          fat_per_100g: number
+          id?: string
+          is_favorite?: boolean
+          name: string
+          off_barcode?: string | null
+          protein_per_100g: number
+          source: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand?: string | null
+          calories_per_100g?: number
+          carbs_per_100g?: number
+          created_at?: string
+          default_portion_g?: number | null
+          fat_per_100g?: number
+          id?: string
+          is_favorite?: boolean
+          name?: string
+          off_barcode?: string | null
+          protein_per_100g?: number
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recipe_ingredients: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity_g: number
+          recipe_id: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity_g: number
+          recipe_id: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity_g?: number
+          recipe_id?: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_ingredients_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_ingredients_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          created_at: string
+          id: string
+          instructions: string | null
+          is_favorite: boolean
+          photo_path: string | null
+          servings: number
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          is_favorite?: boolean
+          photo_path?: string | null
+          servings?: number
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          is_favorite?: boolean
+          photo_path?: string | null
+          servings?: number
+          tags?: string[]
+          title?: string
           updated_at?: string
           user_id?: string
         }
