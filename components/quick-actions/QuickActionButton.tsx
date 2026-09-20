@@ -26,7 +26,9 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { vibrate } from "@/lib/haptics";
+import { dateKey } from "@/lib/date";
 import { createInboxNote } from "@/components/quick-actions/actions";
+import { LogFoodSheet } from "@/components/voeding/LogFoodSheet";
 
 type Tile = {
   key: string;
@@ -37,7 +39,7 @@ type Tile = {
 };
 
 const TILES: Tile[] = [
-  { key: "maaltijd", label: "Maaltijd loggen", icon: Utensils, matchPaths: ["/voeding"], functional: false },
+  { key: "maaltijd", label: "Maaltijd loggen", icon: Utensils, matchPaths: ["/voeding"], functional: true },
   { key: "workout", label: "Workout starten", icon: Dumbbell, matchPaths: ["/sport"], functional: false },
   { key: "gewicht", label: "Gewicht invoeren", icon: Scale, matchPaths: ["/meer/metingen"], functional: false },
   { key: "foto", label: "Progressiefoto maken", icon: Camera, matchPaths: ["/meer/metingen"], functional: false },
@@ -55,6 +57,7 @@ export function QuickActionButton() {
   const pathname = usePathname();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [mealSheetOpen, setMealSheetOpen] = useState(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggered = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -114,6 +117,9 @@ export function QuickActionButton() {
     setSheetOpen(false);
     if (tile.key === "notitie") {
       setNoteOpen(true);
+    }
+    if (tile.key === "maaltijd") {
+      setMealSheetOpen(true);
     }
   }
 
@@ -216,6 +222,12 @@ export function QuickActionButton() {
           </form>
         </DrawerContent>
       </Drawer>
+
+      <LogFoodSheet
+        open={mealSheetOpen}
+        onOpenChange={setMealSheetOpen}
+        entryDate={dateKey(new Date())}
+      />
     </>
   );
 }

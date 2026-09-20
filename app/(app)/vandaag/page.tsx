@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { ensureDefaultData, fetchVandaagData } from "@/lib/data/vandaag";
+import { fetchDiaryForDate } from "@/lib/data/voeding";
 import { isTaskScheduledForDate, type TaskRecurrence } from "@/lib/recurrence";
 import { calculateStreak } from "@/lib/streaks";
 import { formatDutchDate } from "@/lib/date";
 import { DailyChecklist, type ChecklistTask } from "@/components/vandaag/DailyChecklist";
 import { DashboardCards, type CardPref } from "@/components/vandaag/DashboardCards";
+import { NutritionCard } from "@/components/vandaag/NutritionCard";
 
 function getGreeting(hour: number) {
   if (hour < 6) return "Goedenacht";
@@ -67,6 +69,8 @@ export default async function VandaagPage(props: PageProps<"/vandaag">) {
     is_visible: pref.is_visible,
   }));
 
+  const diary = await fetchDiaryForDate(supabase, todayKey);
+
   return (
     <div className="flex flex-col gap-6 px-4 pt-6">
       <div>
@@ -84,7 +88,18 @@ export default async function VandaagPage(props: PageProps<"/vandaag">) {
         autoOpenCreate={autoOpenCreate}
       />
 
-      <DashboardCards initialCards={cards} />
+      <DashboardCards
+        initialCards={cards}
+        cardOverrides={{
+          voeding: (
+            <NutritionCard
+              totals={diary.totals}
+              calorieGoal={diary.calorieGoal}
+              proteinGoal={diary.proteinGoal}
+            />
+          ),
+        }}
+      />
     </div>
   );
 }

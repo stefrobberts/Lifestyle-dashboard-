@@ -1,6 +1,7 @@
 import { LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { ClearSampleRecipesButton } from "@/components/voeding/ClearSampleRecipesButton";
 import { signOut } from "@/app/(app)/meer/instellingen/actions";
 
 export default function InstellingenPage() {
@@ -18,6 +19,13 @@ export default function InstellingenPage() {
           Thema
         </h2>
         <ThemeToggle />
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          Voorbeelddata
+        </h2>
+        <ClearSampleRecipesButton />
       </div>
 
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-8 text-center text-muted-foreground">

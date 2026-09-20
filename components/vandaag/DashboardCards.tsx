@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { GripVertical, Scale, Settings2, Sparkles, Utensils, Dumbbell, ListTodo } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -91,7 +91,13 @@ function ManageRow({
   );
 }
 
-export function DashboardCards({ initialCards }: { initialCards: CardPref[] }) {
+export function DashboardCards({
+  initialCards,
+  cardOverrides,
+}: {
+  initialCards: CardPref[];
+  cardOverrides?: Partial<Record<CardKey, ReactNode>>;
+}) {
   const [cards, setCards] = useState(initialCards);
   const [prevInitialCards, setPrevInitialCards] = useState(initialCards);
   if (initialCards !== prevInitialCards) {
@@ -142,6 +148,9 @@ export function DashboardCards({ initialCards }: { initialCards: CardPref[] }) {
 
       <div className="flex flex-col gap-3">
         {visibleCards.map((card) => {
+          const override = cardOverrides?.[card.card_key];
+          if (override) return <div key={card.card_key}>{override}</div>;
+
           const meta = CARD_META[card.card_key];
           return (
             <ModulePlaceholderCard

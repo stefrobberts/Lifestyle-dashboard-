@@ -8,6 +8,8 @@ export const recipeTagSchema = z.enum([
   "eiwitrijk",
 ]);
 
+export type RecipeTag = z.infer<typeof recipeTagSchema>;
+
 export const recipeIngredientSchema = z.object({
   product_id: z.uuid(),
   quantity_g: z.coerce.number().positive("Vul een hoeveelheid groter dan 0 in."),

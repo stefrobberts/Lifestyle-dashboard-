@@ -16,6 +16,16 @@ function round1(value: number): number {
   return Math.round(value * 10) / 10;
 }
 
+/** Macro's vermenigvuldigd met een factor (bv. aantal gelogde porties van een recept). */
+export function scaleMacros(macros: MacroTotals, factor: number): MacroTotals {
+  return {
+    calories: Math.round(macros.calories * factor),
+    protein_g: round1(macros.protein_g * factor),
+    carbs_g: round1(macros.carbs_g * factor),
+    fat_g: round1(macros.fat_g * factor),
+  };
+}
+
 /** Macro's voor een gegeven hoeveelheid (in gram) van een product. */
 export function calculateMacrosForQuantity(
   product: ProductMacros,
