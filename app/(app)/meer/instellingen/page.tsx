@@ -2,6 +2,7 @@ import { LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { ClearSampleRecipesButton } from "@/components/voeding/ClearSampleRecipesButton";
+import { ClearSampleSportButton } from "@/components/sport/ClearSampleSportButton";
 import { signOut } from "@/app/(app)/meer/instellingen/actions";
 
 export default function InstellingenPage() {
@@ -26,6 +27,7 @@ export default function InstellingenPage() {
           Voorbeelddata
         </h2>
         <ClearSampleRecipesButton />
+        <ClearSampleSportButton />
       </div>
 
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-8 text-center text-muted-foreground">

@@ -26,7 +26,7 @@ import {
 } from "@/app/(app)/voeding/recepten/actions";
 import { logProduct, logRecipe } from "@/app/(app)/voeding/actions";
 import { BarcodeScanner } from "@/components/voeding/BarcodeScanner";
-import { SearchInput } from "@/components/voeding/SearchInput";
+import { SearchInput } from "@/components/shared/SearchInput";
 
 type MealType = "ontbijt" | "lunch" | "diner" | "snack";
 

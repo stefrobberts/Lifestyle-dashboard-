@@ -29,6 +29,7 @@ import { vibrate } from "@/lib/haptics";
 import { dateKey } from "@/lib/date";
 import { createInboxNote } from "@/components/quick-actions/actions";
 import { LogFoodSheet } from "@/components/voeding/LogFoodSheet";
+import { startTodaysWorkout } from "@/app/(app)/sport/actions";
 
 type Tile = {
   key: string;
@@ -40,7 +41,7 @@ type Tile = {
 
 const TILES: Tile[] = [
   { key: "maaltijd", label: "Maaltijd loggen", icon: Utensils, matchPaths: ["/voeding"], functional: true },
-  { key: "workout", label: "Workout starten", icon: Dumbbell, matchPaths: ["/sport"], functional: false },
+  { key: "workout", label: "Workout starten", icon: Dumbbell, matchPaths: ["/sport"], functional: true },
   { key: "gewicht", label: "Gewicht invoeren", icon: Scale, matchPaths: ["/meer/metingen"], functional: false },
   { key: "foto", label: "Progressiefoto maken", icon: Camera, matchPaths: ["/meer/metingen"], functional: false },
   { key: "werktaak", label: "Werktaak toevoegen", icon: ListTodo, matchPaths: ["/werk"], functional: false },
@@ -120,6 +121,9 @@ export function QuickActionButton() {
     }
     if (tile.key === "maaltijd") {
       setMealSheetOpen(true);
+    }
+    if (tile.key === "workout") {
+      startTodaysWorkout();
     }
   }
 

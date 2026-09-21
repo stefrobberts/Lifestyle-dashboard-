@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { searchProducts, type SearchResultProduct } from "@/lib/data/products";
-import { SearchInput } from "@/components/voeding/SearchInput";
+import { SearchInput } from "@/components/shared/SearchInput";
 import { calculateRecipeMacros } from "@/lib/nutrition";
 import type { RecipeTag } from "@/lib/validations/recipe";
 
