@@ -113,7 +113,7 @@ export function RestTimer({
   const seconds = remaining % 60;
 
   return (
-    <div className="fixed inset-x-0 bottom-20 z-30 mx-4 flex items-center justify-between rounded-2xl border border-primary/30 bg-card/95 px-4 py-3 shadow-lg backdrop-blur">
+    <div className="safe-bottom fixed inset-x-0 bottom-4 z-30 mx-4 flex items-center justify-between rounded-2xl border border-primary/30 bg-card/95 px-4 py-3 shadow-lg backdrop-blur">
       <button
         type="button"
         onClick={() => onAdjust(-STEP_SECONDS)}

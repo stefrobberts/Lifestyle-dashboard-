@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { vibrate } from "@/lib/haptics";
 import { useRestTimer, RestTimer } from "@/components/sport/RestTimer";
-import { logSet, deleteSet, completeSession } from "@/app/(app)/sport/workout/actions";
+import { logSet, deleteSet, completeSession } from "@/app/(workout)/sport/workout/actions";
 
 export type WorkoutExercise = {
   id: string;
