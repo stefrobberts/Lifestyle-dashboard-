@@ -145,7 +145,7 @@ Vormen en beweging:
 
 * [x] Fase 1: basis, login, design system, navigatiebalk, snelle actieknop, pagina Vandaag met dagelijkse taken
 * [x] Fase 2: voeding (dagboek, calorieën, recepten, barcode scannen)
-* [ ] Fase 3: sport (schema's, workout modus, analyses)
+* [x] Fase 3: sport (schema's, workout modus, analyses)
 * [ ] Fase 4: werk (takenlijst, LinkedIn ideeën, notities, Inbox)
 * [ ] Fase 5: metingen en progressiefoto's
 * [ ] Fase 6: entertainment en verzorging
@@ -192,6 +192,23 @@ Openstaand / bewust uitgesteld:
 * Barcode scannen (`BarcodeScanner.tsx`) kon niet automatisch getest worden zonder een echte camera/telefoon — test dit zelf even bij het eerste gebruik.
 * Eén Open Food Facts-zoekopdracht is handmatig gecontroleerd; het blijft een externe dienst die af en toe onvolledige voedingswaarden teruggeeft (dan valt de kcal-waarde weg uit de resultaten, zie `mapOffProduct`).
 * Er is geen productbeheerscherm (bewerken/verwijderen van eigen producten) — dat kan eventueel later in Instellingen.
+
+**Fase 3 (2026-09-22):**
+
+Gebouwd:
+* Migratie `0004_sport.sql`: `exercises`, `workout_schedules`, `schedule_exercises`, `workout_sessions`, `workout_sets` (RLS overal aan), plus `sample_sport_seeded`-vlag op `user_settings`.
+* `lib/sport.ts`: geschat 1RM (Epley-formule), PR-detectie, trainingsvolume (totaal en per spiergroep), en de round-robin-logica voor "de workout van vandaag".
+* Oefeningenbibliotheek (`/sport/oefeningen`) en schema's (`/sport/schemas`) met een herbruikbare oefeningkiezer (zoeken, sets/reps invullen).
+* Workout modus (`/sport/workout/[sessionId]`): groot, één-hands bedienbaar, vorige-keer-invulling per set, swipe/tap om af te vinken, PR-melding als toast, rusttimer die op kloktijd doortelt (blijft correct na ontgrendelen) met +/- 15s en een zelf gegenereerd piepje. **Eigen routegroep `app/(workout)/`** zonder navigatiebalk/snelle actieknop, zodat de modus het hele scherm gebruikt — dat stond eerst nog binnen de gewone app-layout en overlapte daardoor met de FAB.
+* Analyses (`/sport/analyses`): progressie per oefening (lijngrafiek geschat 1RM), persoonlijke records, volume per spiergroep deze week, een zelfgebouwde kalender met trainingsdagen (geen nieuwe library).
+* `SportCard` op Vandaag vervangt de placeholder en toont/start de workout van vandaag. FAB-tegel "Workout starten" is nu functioneel.
+* Voorbeeldschema (Push/Pull/Legs, 22 oefeningen) bij eerste bezoek, wisbaar in Instellingen.
+* Geverifieerd: build en lint slagen, en een volledige doorloop (schema's bekijken → workout starten → sets loggen met PR-melding → afronden → rotatie naar het volgende schema → analyses kloppen → Vandaag-kaart klopt) is getest via een tijdelijk testaccount in donker en licht thema op 390×844, inclusief de layoutfix voor de workout modus.
+
+Openstaand / bewust uitgesteld:
+* De rusttimer geeft geen geluid/trilling terwijl het scherm op slot staat — dat vereist pushnotificaties (fase 7), zoals vooraf afgestemd.
+* Geen ad-hoc workouts zonder schema (workout starten gaat altijd via een schema) — kan later toegevoegd worden als daar behoefte aan is.
+* Geen aparte "sets bewerken" na het loggen, alleen verwijderen — bewerken kan altijd nog als los stukje werk.
 
 ## Ideeën voor later
 
