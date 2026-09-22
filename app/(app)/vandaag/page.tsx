@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { ensureDefaultData, fetchVandaagData } from "@/lib/data/vandaag";
 import { fetchDiaryForDate } from "@/lib/data/voeding";
 import { ensureDefaultSportData, fetchTodaysSchedule } from "@/lib/data/sport";
+import {
+  ensureDefaultWorkCategories,
+  ensureSampleWorkData,
+  fetchTodaysTaskSummary,
+} from "@/lib/data/work";
 import { isTaskScheduledForDate, type TaskRecurrence } from "@/lib/recurrence";
 import { calculateStreak } from "@/lib/streaks";
 import { formatDutchDate } from "@/lib/date";
@@ -9,6 +14,7 @@ import { DailyChecklist, type ChecklistTask } from "@/components/vandaag/DailyCh
 import { DashboardCards, type CardPref } from "@/components/vandaag/DashboardCards";
 import { NutritionCard } from "@/components/vandaag/NutritionCard";
 import { SportCard } from "@/components/vandaag/SportCard";
+import { WerkCard } from "@/components/vandaag/WerkCard";
 
 function getGreeting(hour: number) {
   if (hour < 6) return "Goedenacht";
@@ -76,6 +82,10 @@ export default async function VandaagPage(props: PageProps<"/vandaag">) {
   await ensureDefaultSportData(supabase, user.id);
   const todaysSchedule = await fetchTodaysSchedule(supabase);
 
+  await ensureDefaultWorkCategories(supabase, user.id);
+  await ensureSampleWorkData(supabase, user.id);
+  const workSummary = await fetchTodaysTaskSummary(supabase, todayKey);
+
   return (
     <div className="flex flex-col gap-6 px-4 pt-6">
       <div>
@@ -110,6 +120,12 @@ export default async function VandaagPage(props: PageProps<"/vandaag">) {
                   ? { id: todaysSchedule.id, title: todaysSchedule.title }
                   : null
               }
+            />
+          ),
+          werk: (
+            <WerkCard
+              taskCount={workSummary.count}
+              topPriority={workSummary.topPriority}
             />
           ),
         }}

@@ -30,6 +30,8 @@ import { dateKey } from "@/lib/date";
 import { createInboxNote } from "@/components/quick-actions/actions";
 import { LogFoodSheet } from "@/components/voeding/LogFoodSheet";
 import { startTodaysWorkout } from "@/app/(app)/sport/actions";
+import { createTask } from "@/app/(app)/werk/actions";
+import { quickCreateLinkedinIdea } from "@/app/(app)/werk/linkedin/actions";
 
 type Tile = {
   key: string;
@@ -44,8 +46,8 @@ const TILES: Tile[] = [
   { key: "workout", label: "Workout starten", icon: Dumbbell, matchPaths: ["/sport"], functional: true },
   { key: "gewicht", label: "Gewicht invoeren", icon: Scale, matchPaths: ["/meer/metingen"], functional: false },
   { key: "foto", label: "Progressiefoto maken", icon: Camera, matchPaths: ["/meer/metingen"], functional: false },
-  { key: "werktaak", label: "Werktaak toevoegen", icon: ListTodo, matchPaths: ["/werk"], functional: false },
-  { key: "linkedin", label: "LinkedIn idee", icon: Megaphone, matchPaths: ["/werk"], functional: false },
+  { key: "werktaak", label: "Werktaak toevoegen", icon: ListTodo, matchPaths: ["/werk"], functional: true },
+  { key: "linkedin", label: "LinkedIn idee", icon: Megaphone, matchPaths: ["/werk"], functional: true },
   { key: "notitie", label: "Notitie", icon: NotebookPen, functional: true },
   { key: "titel", label: "Titel toevoegen", icon: Sparkles, matchPaths: ["/meer/entertainment"], functional: false },
 ];
@@ -59,9 +61,13 @@ export function QuickActionButton() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [mealSheetOpen, setMealSheetOpen] = useState(false);
+  const [taskSheetOpen, setTaskSheetOpen] = useState(false);
+  const [linkedinSheetOpen, setLinkedinSheetOpen] = useState(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggered = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const taskFormRef = useRef<HTMLFormElement>(null);
+  const linkedinFormRef = useRef<HTMLFormElement>(null);
 
   const [noteState, noteAction, notePending] = useActionState(
     async (_prev: NoteState, formData: FormData): Promise<NoteState> => {
@@ -72,6 +78,34 @@ export function QuickActionButton() {
       toast.success("Opgeslagen in je inbox");
       formRef.current?.reset();
       setNoteOpen(false);
+      return { status: "idle" };
+    },
+    { status: "idle" }
+  );
+
+  const [taskState, taskAction, taskPending] = useActionState(
+    async (_prev: NoteState, formData: FormData): Promise<NoteState> => {
+      const result = await createTask(formData);
+      if (!result.success) {
+        return { status: "error", message: result.error };
+      }
+      toast.success("Taak toegevoegd");
+      taskFormRef.current?.reset();
+      setTaskSheetOpen(false);
+      return { status: "idle" };
+    },
+    { status: "idle" }
+  );
+
+  const [linkedinState, linkedinAction, linkedinPending] = useActionState(
+    async (_prev: NoteState, formData: FormData): Promise<NoteState> => {
+      const result = await quickCreateLinkedinIdea(formData);
+      if (!result.success) {
+        return { status: "error", message: result.error };
+      }
+      toast.success("Idee opgeslagen");
+      linkedinFormRef.current?.reset();
+      setLinkedinSheetOpen(false);
       return { status: "idle" };
     },
     { status: "idle" }
@@ -124,6 +158,12 @@ export function QuickActionButton() {
     }
     if (tile.key === "workout") {
       startTodaysWorkout();
+    }
+    if (tile.key === "werktaak") {
+      setTaskSheetOpen(true);
+    }
+    if (tile.key === "linkedin") {
+      setLinkedinSheetOpen(true);
     }
   }
 
@@ -232,6 +272,102 @@ export function QuickActionButton() {
         onOpenChange={setMealSheetOpen}
         entryDate={dateKey(new Date())}
       />
+
+      <Drawer open={taskSheetOpen} onOpenChange={setTaskSheetOpen}>
+        <DrawerContent>
+          <form ref={taskFormRef} action={taskAction}>
+            <input type="hidden" name="priority" value="normaal" />
+            <input type="hidden" name="recurrence_type" value="geen" />
+            <DrawerHeader>
+              <DrawerTitle>Werktaak toevoegen</DrawerTitle>
+              <DrawerDescription>
+                Details zoals deadline en categorie kun je later toevoegen in Werk.
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 pb-2">
+              <input
+                name="title"
+                autoFocus
+                required
+                placeholder="Titel van de taak…"
+                className="h-11 w-full rounded-[12px] border border-border bg-background px-3 text-base outline-none focus:border-primary"
+              />
+              {taskState.status === "error" && (
+                <p role="alert" className="mt-2 text-sm text-destructive">
+                  {taskState.message}
+                </p>
+              )}
+            </div>
+            <DrawerFooter>
+              <Button
+                type="submit"
+                disabled={taskPending}
+                className="h-11 rounded-[12px] text-base"
+              >
+                {taskPending ? "Bezig met opslaan…" : "Taak toevoegen"}
+              </Button>
+              <DrawerClose
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-11 rounded-[12px] text-base"
+                  >
+                    Annuleren
+                  </Button>
+                }
+              />
+            </DrawerFooter>
+          </form>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={linkedinSheetOpen} onOpenChange={setLinkedinSheetOpen}>
+        <DrawerContent>
+          <form ref={linkedinFormRef} action={linkedinAction}>
+            <DrawerHeader>
+              <DrawerTitle>LinkedIn-idee vastleggen</DrawerTitle>
+              <DrawerDescription>
+                Ook prima als het maar één zin is. De rest werk je later uit.
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 pb-2">
+              <input
+                name="subject"
+                autoFocus
+                required
+                placeholder="Waar gaat het idee over?"
+                className="h-11 w-full rounded-[12px] border border-border bg-background px-3 text-base outline-none focus:border-primary"
+              />
+              {linkedinState.status === "error" && (
+                <p role="alert" className="mt-2 text-sm text-destructive">
+                  {linkedinState.message}
+                </p>
+              )}
+            </div>
+            <DrawerFooter>
+              <Button
+                type="submit"
+                disabled={linkedinPending}
+                className="h-11 rounded-[12px] text-base"
+              >
+                {linkedinPending ? "Bezig met opslaan…" : "Idee opslaan"}
+              </Button>
+              <DrawerClose
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-11 rounded-[12px] text-base"
+                  >
+                    Annuleren
+                  </Button>
+                }
+              />
+            </DrawerFooter>
+          </form>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }
