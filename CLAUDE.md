@@ -146,7 +146,7 @@ Vormen en beweging:
 * [x] Fase 1: basis, login, design system, navigatiebalk, snelle actieknop, pagina Vandaag met dagelijkse taken
 * [x] Fase 2: voeding (dagboek, calorieën, recepten, barcode scannen)
 * [x] Fase 3: sport (schema's, workout modus, analyses)
-* [ ] Fase 4: werk (takenlijst, LinkedIn ideeën, notities, Inbox)
+* [x] Fase 4: werk (takenlijst, LinkedIn ideeën, notities, Inbox)
 * [ ] Fase 5: metingen en progressiefoto's
 * [ ] Fase 6: entertainment en verzorging
 * [ ] Fase 7: PWA afwerking, pushnotificaties, export en polish
@@ -209,6 +209,24 @@ Openstaand / bewust uitgesteld:
 * De rusttimer geeft geen geluid/trilling terwijl het scherm op slot staat — dat vereist pushnotificaties (fase 7), zoals vooraf afgestemd.
 * Geen ad-hoc workouts zonder schema (workout starten gaat altijd via een schema) — kan later toegevoegd worden als daar behoefte aan is.
 * Geen aparte "sets bewerken" na het loggen, alleen verwijderen — bewerken kan altijd nog als los stukje werk.
+
+**Fase 4 (2026-09-22):**
+
+Gebouwd:
+* Migratie `0005_werk.sql`: `work_categories`, `work_tasks` (met `parent_task_id` voor subtaken en `recurrence_type` voor herhaling), `linkedin_ideas`, `work_notes` (RLS overal aan), plus `work_categories_seeded`/`sample_work_seeded`-vlaggen op `user_settings` en de privé storage bucket `linkedin-images`. De bestaande `inbox_notes`-tabel uit fase 1 wordt hergebruikt voor de Inbox.
+* `lib/work.ts`: `categorizeTaskByDeadline` (vandaag/deze week/later), `isOverdue`, `nextRecurrenceDate` (telt 1/7/30 dagen op bij het afronden van een terugkerende taak).
+* Taken (`/werk`): tabs Vandaag/Deze week/Later/Afgerond, `TaskFormSheet` met titel/notitie/deadline/prioriteit/categorie/herhaling en inline subtaken, swipe rechts=afvinken (groen)/links=uitstellen naar morgen (oranje) — verwijderen gaat bewust via het bewerkformulier, niet via swipe. Een terugkerende taak afronden maakt automatisch de volgende aan met de berekende nieuwe deadline.
+* LinkedIn-ideeën (`/werk/linkedin`): lijst met statuswissel (idee/concept/gepland/gepubliceerd), aanmaken/bewerken met optionele foto (`capture="environment"`, zelfde patroon als receptfoto's), kopieerknop voor hook+body, zelfgebouwde contentkalender (geen nieuwe library, zelfde stijl als de sport-kalender uit fase 3).
+* Notities (`/werk/notities`): doorzoekbare lijst (herbruikbare `SearchInput`), omzetten naar taak of LinkedIn-idee (notitie zelf blijft bestaan na omzetten).
+* Inbox (`/werk/inbox`): onverwerkte snelle notities (lange druk op de FAB) met 4 acties per item — omzetten naar Taak/Notitie/LinkedIn-idee of wissen — plus een rode badge met het aantal op de Werk-subnavigatie.
+* `WerkCard` op Vandaag vervangt de placeholder en toont het aantal openstaande taken voor vandaag (incl. te laat) met de hoogste prioriteit. FAB-tegels "Werktaak toevoegen" en "LinkedIn idee" zijn nu functioneel (compacte bottom sheet met alleen een titel/onderwerp-veld, rest is later aan te vullen in Werk zelf).
+* Werkcategorieën (Klantwerk, Eigen bedrijf, Persoonlijk) en een paar voorbeelden (taken, één LinkedIn-idee, één notitie) worden automatisch aangemaakt bij het eerste bezoek, wisbaar in Instellingen.
+* **Bug gevonden en opgelost tijdens testen**: de voorbeeldtaken kwamen niet aan door `PGRST102: All object keys must match` — PostgREST accepteert alleen bulk-inserts (`.insert([...])`) waarbij elk object exact dezelfde sleutels heeft, en omdat de fout niet gelogd werd (geen destructuring van `{ error }`) bleef dit onopgemerkt tot handmatig testen. Opgelost door elk taak-object expliciet alle velden te geven (ook `null`) en door voortaan overal `{ error }` uit seed-inserts te loggen. **Let hierop bij elke toekomstige seed-functie met een bulk-insert.**
+* Geverifieerd: build en lint slagen, en een volledige doorloop is getest via een tijdelijk testaccount in donker en licht thema op 390×844: taak aanmaken met deadline/prioriteit/categorie in de juiste tab, swipe rechts/links, een terugkerende taak afronden en de volgende met +7 dagen zien verschijnen in Later, subtaken, LinkedIn-idee met status, notitie, beide FAB-sneltoetsen (Werktaak/LinkedIn), de volledige Inbox-flow (snelle notitie via lang indrukken → verschijnt in Inbox met badge → omzetten naar taak → Inbox weer leeg met nette lege staat, en apart nog wissen getest), en de Vandaag-kaart.
+
+Openstaand / bewust uitgesteld:
+* Geen productie-testsuite voor de seed-functies die het PGRST102-probleem zou hebben opgevangen — correctheid blijft voorlopig afhankelijk van build/lint plus handmatige/visuele controle, zoals in eerdere fases.
+* Server-push notificaties bij taakdeadlines komen zoals gepland in fase 7.
 
 ## Ideeën voor later
 

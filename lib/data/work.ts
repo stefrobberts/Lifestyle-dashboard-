@@ -50,7 +50,10 @@ export async function ensureSampleWorkData(supabase: Client, userId: string) {
   const friday = new Date(monday);
   friday.setDate(friday.getDate() + 4);
 
-  await supabase.from("work_tasks").insert([
+  // PostgREST vereist dat alle objecten in een bulk-insert exact dezelfde
+  // sleutels hebben (anders faalt de hele batch met PGRST102) — dus elk
+  // taak-object hieronder krijgt bewust alle velden, ook als leeg/null.
+  const { error: tasksError } = await supabase.from("work_tasks").insert([
     {
       user_id: userId,
       title: "Weekplanning maken",
@@ -63,19 +66,25 @@ export async function ensureSampleWorkData(supabase: Client, userId: string) {
     {
       user_id: userId,
       title: "Factuur versturen",
+      notes: null,
       deadline: dateKey(friday),
       priority: "hoog",
+      recurrence_type: "geen",
       category_id: categoryId("Klantwerk"),
     },
     {
       user_id: userId,
       title: "Portfolio bijwerken",
+      notes: null,
+      deadline: null,
       priority: "laag",
+      recurrence_type: "geen",
       category_id: categoryId("Persoonlijk"),
     },
   ]);
+  if (tasksError) console.error("ensureSampleWorkData: taken seeden mislukt", tasksError);
 
-  await supabase.from("linkedin_ideas").insert({
+  const { error: ideaError } = await supabase.from("linkedin_ideas").insert({
     user_id: userId,
     subject: "Hoe ik mijn workflow met AI heb versneld",
     hook: "Een jaar geleden deed ik dit nog volledig handmatig.",
@@ -83,12 +92,14 @@ export async function ensureSampleWorkData(supabase: Client, userId: string) {
     tags: ["ai", "productiviteit"],
     status: "idee",
   });
+  if (ideaError) console.error("ensureSampleWorkData: LinkedIn-idee seeden mislukt", ideaError);
 
-  await supabase.from("work_notes").insert({
+  const { error: noteError } = await supabase.from("work_notes").insert({
     user_id: userId,
     title: "Ideeën voor volgend kwartaal",
     content: "Losse gedachtes en dingen om later verder uit te werken.",
   });
+  if (noteError) console.error("ensureSampleWorkData: notitie seeden mislukt", noteError);
 }
 
 export async function fetchWorkCategories(supabase: Client) {
