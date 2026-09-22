@@ -256,6 +256,48 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_ideas: {
+        Row: {
+          body: string | null
+          created_at: string
+          hook: string | null
+          id: string
+          image_path: string | null
+          planned_date: string | null
+          status: string
+          subject: string
+          tags: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          hook?: string | null
+          id?: string
+          image_path?: string | null
+          planned_date?: string | null
+          status?: string
+          subject: string
+          tags?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          hook?: string | null
+          id?: string
+          image_path?: string | null
+          planned_date?: string | null
+          status?: string
+          subject?: string
+          tags?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand: string | null
@@ -455,9 +497,11 @@ export type Database = {
           protein_goal_g: number
           sample_recipes_seeded: boolean
           sample_sport_seeded: boolean
+          sample_work_seeded: boolean
           theme: string
           updated_at: string
           user_id: string
+          work_categories_seeded: boolean
         }
         Insert: {
           calorie_goal?: number
@@ -468,9 +512,11 @@ export type Database = {
           protein_goal_g?: number
           sample_recipes_seeded?: boolean
           sample_sport_seeded?: boolean
+          sample_work_seeded?: boolean
           theme?: string
           updated_at?: string
           user_id: string
+          work_categories_seeded?: boolean
         }
         Update: {
           calorie_goal?: number
@@ -481,11 +527,130 @@ export type Database = {
           protein_goal_g?: number
           sample_recipes_seeded?: boolean
           sample_sport_seeded?: boolean
+          sample_work_seeded?: boolean
           theme?: string
+          updated_at?: string
+          user_id?: string
+          work_categories_seeded?: boolean
+        }
+        Relationships: []
+      }
+      work_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      work_notes: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      work_tasks: {
+        Row: {
+          category_id: string | null
+          completed_at: string | null
+          created_at: string
+          deadline: string | null
+          id: string
+          notes: string | null
+          parent_task_id: string | null
+          priority: string
+          recurrence_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          notes?: string | null
+          parent_task_id?: string | null
+          priority?: string
+          recurrence_type?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          notes?: string | null
+          parent_task_id?: string | null
+          priority?: string
+          recurrence_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_tasks_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "work_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "work_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workout_schedules: {
         Row: {
