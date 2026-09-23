@@ -7,6 +7,8 @@ import {
   ensureSampleWorkData,
   fetchTodaysTaskSummary,
 } from "@/lib/data/work";
+import { ensureSampleMeasurements, fetchRecentWeights } from "@/lib/data/measurements";
+import { measurementDelta } from "@/lib/measurements";
 import { isTaskScheduledForDate, type TaskRecurrence } from "@/lib/recurrence";
 import { calculateStreak } from "@/lib/streaks";
 import { formatDutchDate } from "@/lib/date";
@@ -15,6 +17,7 @@ import { DashboardCards, type CardPref } from "@/components/vandaag/DashboardCar
 import { NutritionCard } from "@/components/vandaag/NutritionCard";
 import { SportCard } from "@/components/vandaag/SportCard";
 import { WerkCard } from "@/components/vandaag/WerkCard";
+import { WeightCard } from "@/components/vandaag/WeightCard";
 
 function getGreeting(hour: number) {
   if (hour < 6) return "Goedenacht";
@@ -86,6 +89,18 @@ export default async function VandaagPage(props: PageProps<"/vandaag">) {
   await ensureSampleWorkData(supabase, user.id);
   const workSummary = await fetchTodaysTaskSummary(supabase, todayKey);
 
+  await ensureSampleMeasurements(supabase, user.id);
+  const recentWeights = await fetchRecentWeights(supabase, 30);
+  const latestWeight = recentWeights[0]?.weight_kg ?? null;
+  const previousWeight = recentWeights[1]?.weight_kg ?? null;
+  const weightDelta =
+    latestWeight !== null && previousWeight !== null
+      ? measurementDelta(latestWeight, previousWeight)
+      : null;
+  const weightSparkline = [...recentWeights]
+    .reverse()
+    .map((m) => ({ value: m.weight_kg as number }));
+
   return (
     <div className="flex flex-col gap-6 px-4 pt-6">
       <div>
@@ -126,6 +141,13 @@ export default async function VandaagPage(props: PageProps<"/vandaag">) {
             <WerkCard
               taskCount={workSummary.count}
               topPriority={workSummary.topPriority}
+            />
+          ),
+          gewicht: (
+            <WeightCard
+              latestWeight={latestWeight}
+              delta={weightDelta}
+              sparkline={weightSparkline}
             />
           ),
         }}

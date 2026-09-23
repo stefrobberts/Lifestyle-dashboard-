@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      body_measurements: {
+        Row: {
+          arm_cm: number | null
+          body_fat_percentage: number | null
+          chest_cm: number | null
+          created_at: string
+          hips_cm: number | null
+          id: string
+          measured_at: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+          waist_cm: number | null
+          weight_kg: number | null
+        }
+        Insert: {
+          arm_cm?: number | null
+          body_fat_percentage?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          hips_cm?: number | null
+          id?: string
+          measured_at: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Update: {
+          arm_cm?: number | null
+          body_fat_percentage?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          hips_cm?: number | null
+          id?: string
+          measured_at?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
       daily_task_definitions: {
         Row: {
           anchor_date: string
@@ -349,6 +394,36 @@ export type Database = {
         }
         Relationships: []
       }
+      progress_photos: {
+        Row: {
+          created_at: string
+          id: string
+          photo_path: string
+          taken_at: string
+          updated_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photo_path: string
+          taken_at: string
+          updated_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photo_path?: string
+          taken_at?: string
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
       recipe_ingredients: {
         Row: {
           created_at: string
@@ -495,6 +570,7 @@ export type Database = {
           fat_goal_g: number | null
           id: string
           protein_goal_g: number
+          sample_measurements_seeded: boolean
           sample_recipes_seeded: boolean
           sample_sport_seeded: boolean
           sample_work_seeded: boolean
@@ -510,6 +586,7 @@ export type Database = {
           fat_goal_g?: number | null
           id?: string
           protein_goal_g?: number
+          sample_measurements_seeded?: boolean
           sample_recipes_seeded?: boolean
           sample_sport_seeded?: boolean
           sample_work_seeded?: boolean
@@ -525,6 +602,7 @@ export type Database = {
           fat_goal_g?: number | null
           id?: string
           protein_goal_g?: number
+          sample_measurements_seeded?: boolean
           sample_recipes_seeded?: boolean
           sample_sport_seeded?: boolean
           sample_work_seeded?: boolean

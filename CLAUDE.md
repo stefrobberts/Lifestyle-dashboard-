@@ -147,7 +147,7 @@ Vormen en beweging:
 * [x] Fase 2: voeding (dagboek, calorieën, recepten, barcode scannen)
 * [x] Fase 3: sport (schema's, workout modus, analyses)
 * [x] Fase 4: werk (takenlijst, LinkedIn ideeën, notities, Inbox)
-* [ ] Fase 5: metingen en progressiefoto's
+* [x] Fase 5: metingen en progressiefoto's
 * [ ] Fase 6: entertainment en verzorging
 * [ ] Fase 7: PWA afwerking, pushnotificaties, export en polish
 
@@ -227,6 +227,25 @@ Gebouwd:
 Openstaand / bewust uitgesteld:
 * Geen productie-testsuite voor de seed-functies die het PGRST102-probleem zou hebben opgevangen — correctheid blijft voorlopig afhankelijk van build/lint plus handmatige/visuele controle, zoals in eerdere fases.
 * Server-push notificaties bij taakdeadlines komen zoals gepland in fase 7.
+
+**Fase 5 (2026-09-23):**
+
+Gebouwd:
+* Migratie `0006_metingen.sql`: `body_measurements` (één rij per dag, uniek per `user_id`+`measured_at` zodat nogmaals loggen op dezelfde dag een update is i.p.v. een dubbele rij — gewicht, vetpercentage, taille/borst/heupen/bovenarm, notitie, allemaal optioneel) en `progress_photos` (datum, foto-pad, automatisch overgenomen gewicht-snapshot van diezelfde dag als die meting bestaat). RLS overal aan, plus de privé storage bucket `progress-photos` en een `sample_measurements_seeded`-vlag op `user_settings`.
+* `lib/measurements.ts`: `calculateTrendLine` (lineaire regressie/kleinste-kwadraten) en `measurementDelta`.
+* Overzicht (`/meer/metingen`): tegels voor het laatste gewicht (met verschil t.o.v. de vorige meting) en vetpercentage, een grafiek met metric-selector (gewicht/vetpercentage/taille/borst/heupen/bovenarm) en periodeselector (30 dagen/90 dagen/1 jaar/alles) met een gestippelde trendlijn naast de echte meetpunten, een meetformulier (bottom sheet, alle velden optioneel behalve de datum) en een geschiedenislijst met veeg-links-verwijderen.
+* Foto's (`/meer/metingen/fotos`): galerij met camera-opname (zelfde patroon als receptfoto's), tik op 2 foto's om te selecteren en te vergelijken, lang indrukken om te verwijderen. De vergelijkingsweergave (`PhotoCompareView`) heeft twee modi: **Schuif** (sleep een verticale lijn om de oudere foto meer of minder te onthullen, met Framer Motion `onPan`) en **Overlay** (de oudere foto als transparante laag over de nieuwere, met een schuifregelaar voor de dekking) — beide zelfgebouwd, geen nieuwe library.
+* `WeightCard` op Vandaag vervangt de placeholder-kaart "Gewichtsverloop": laatste gewicht, verschil t.o.v. de vorige meting, en een kleine sparkline (Recharts zonder assen) van de laatste 30 dagen.
+* FAB-tegels "Gewicht invoeren" (compacte sheet, alleen een gewichtsveld, upsert op vandaag) en "Progressiefoto maken" (opent direct de camera via een verborgen file-input, uploadt meteen na het maken van de foto met een toast "Foto opgeslagen" — geen tussenscherm) zijn nu functioneel.
+* Een paar voorbeeldmetingen verspreid over de laatste maand (aflopend gewicht zodat de trendlijn meteen iets laat zien) worden automatisch aangemaakt bij het eerste bezoek, wisbaar in Instellingen. Geen voorbeeldfoto's, zoals afgesproken.
+* **Bug gevonden en opgelost tijdens testen**: de Y-as van de grafiek toonde overlappende/afgeknipte cijfers (te veel ticks in een smalle grafiek, en het eerste cijfer viel deels buiten de linkerrand). Opgelost met een vaste `tickCount`, een `tickFormatter` met de nl-NL-komma, en een minder negatieve linkermarge.
+* **Bug gevonden en opgelost tijdens testen**: in de foto-vergelijkingsweergave overlapten de datum/gewicht-labels van beide foto's elkaar volledig (geen van beide had een linker/rechter positie, dus beide vielen op dezelfde plek en alleen de bovenste was zichtbaar). Opgelost door de oudste foto's label links en de nieuwste rechts te verankeren.
+* Geverifieerd: build en lint slagen, en een volledige doorloop is getest via een tijdelijk testaccount in donker en licht thema op 390×844: meting invoeren met alle velden, nogmaals loggen op dezelfde dag bevestigd als update (geen dubbele rij), verwijderen (via het bewerkformulier — swipe-gebaren op de rij zelf zijn met synthetische muisevents niet betrouwbaar te simuleren, zelfde bekende beperking als in eerdere fases), metric- en periodeselector, trendlijn, foto toevoegen en de galerij, beide vergelijkingsmodi (Schuif en Overlay) met echte testfoto's, lang indrukken om een foto te verwijderen, beide FAB-sneltoetsen (inclusief het automatisch meenemen van het gewicht van vandaag in een nieuwe foto), de Vandaag-kaart met sparkline, en de wisknop voor voorbeeldmetingen in Instellingen.
+
+Openstaand / bewust uitgesteld:
+* Swipe-gebaren op de metingenrij en de fotogalerij zijn nog niet met de hand getest op een echt touchscreen (alleen de tap-/klikvarianten en de knoppen in de bewerksheet zijn geverifieerd) — controleer dit bij het eerste gebruik op je telefoon, zoals bij eerdere fases.
+* Geen streefgewicht/doel in deze fase — dat hoort bij de uitgebreide Instellingen-pagina uit fase 8 en stond niet in de Fase 5-omschrijving.
+* Server-push notificaties komen zoals gepland in fase 7.
 
 ## Ideeën voor later
 

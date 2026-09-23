@@ -50,7 +50,7 @@ const CARD_META: Record<CardKey, { label: string; description: string; icon: Luc
   },
   gewicht: {
     label: "Gewichtsverloop",
-    description: "Grafiek van de laatste 30 dagen vanaf fase 5",
+    description: "Gewicht, vetpercentage en omtrekken",
     icon: Scale,
   },
 };

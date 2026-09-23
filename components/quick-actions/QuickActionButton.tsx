@@ -32,6 +32,8 @@ import { LogFoodSheet } from "@/components/voeding/LogFoodSheet";
 import { startTodaysWorkout } from "@/app/(app)/sport/actions";
 import { createTask } from "@/app/(app)/werk/actions";
 import { quickCreateLinkedinIdea } from "@/app/(app)/werk/linkedin/actions";
+import { quickSaveWeight } from "@/app/(app)/meer/metingen/actions";
+import { createProgressPhoto } from "@/app/(app)/meer/metingen/fotos/actions";
 
 type Tile = {
   key: string;
@@ -44,8 +46,8 @@ type Tile = {
 const TILES: Tile[] = [
   { key: "maaltijd", label: "Maaltijd loggen", icon: Utensils, matchPaths: ["/voeding"], functional: true },
   { key: "workout", label: "Workout starten", icon: Dumbbell, matchPaths: ["/sport"], functional: true },
-  { key: "gewicht", label: "Gewicht invoeren", icon: Scale, matchPaths: ["/meer/metingen"], functional: false },
-  { key: "foto", label: "Progressiefoto maken", icon: Camera, matchPaths: ["/meer/metingen"], functional: false },
+  { key: "gewicht", label: "Gewicht invoeren", icon: Scale, matchPaths: ["/meer/metingen"], functional: true },
+  { key: "foto", label: "Progressiefoto maken", icon: Camera, matchPaths: ["/meer/metingen"], functional: true },
   { key: "werktaak", label: "Werktaak toevoegen", icon: ListTodo, matchPaths: ["/werk"], functional: true },
   { key: "linkedin", label: "LinkedIn idee", icon: Megaphone, matchPaths: ["/werk"], functional: true },
   { key: "notitie", label: "Notitie", icon: NotebookPen, functional: true },
@@ -63,11 +65,14 @@ export function QuickActionButton() {
   const [mealSheetOpen, setMealSheetOpen] = useState(false);
   const [taskSheetOpen, setTaskSheetOpen] = useState(false);
   const [linkedinSheetOpen, setLinkedinSheetOpen] = useState(false);
+  const [weightSheetOpen, setWeightSheetOpen] = useState(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggered = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
   const taskFormRef = useRef<HTMLFormElement>(null);
   const linkedinFormRef = useRef<HTMLFormElement>(null);
+  const weightFormRef = useRef<HTMLFormElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [noteState, noteAction, notePending] = useActionState(
     async (_prev: NoteState, formData: FormData): Promise<NoteState> => {
@@ -110,6 +115,34 @@ export function QuickActionButton() {
     },
     { status: "idle" }
   );
+
+  const [weightState, weightAction, weightPending] = useActionState(
+    async (_prev: NoteState, formData: FormData): Promise<NoteState> => {
+      const result = await quickSaveWeight(formData);
+      if (!result.success) {
+        return { status: "error", message: result.error };
+      }
+      toast.success("Gewicht opgeslagen");
+      weightFormRef.current?.reset();
+      setWeightSheetOpen(false);
+      return { status: "idle" };
+    },
+    { status: "idle" }
+  );
+
+  async function handlePhotoSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const formData = new FormData();
+    formData.set("photo", file);
+    const result = await createProgressPhoto(formData);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
+    }
+    toast.success("Foto opgeslagen");
+  }
 
   const orderedTiles = useMemo(() => {
     const withPriority = TILES.map((tile) => ({
@@ -164,6 +197,12 @@ export function QuickActionButton() {
     }
     if (tile.key === "linkedin") {
       setLinkedinSheetOpen(true);
+    }
+    if (tile.key === "gewicht") {
+      setWeightSheetOpen(true);
+    }
+    if (tile.key === "foto") {
+      photoInputRef.current?.click();
     }
   }
 
@@ -368,6 +407,71 @@ export function QuickActionButton() {
           </form>
         </DrawerContent>
       </Drawer>
+
+      <Drawer open={weightSheetOpen} onOpenChange={setWeightSheetOpen}>
+        <DrawerContent>
+          <form ref={weightFormRef} action={weightAction}>
+            <DrawerHeader>
+              <DrawerTitle>Gewicht invoeren</DrawerTitle>
+              <DrawerDescription>
+                Vetpercentage en omtrekken kun je later toevoegen in Metingen.
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 pb-2">
+              <div className="relative">
+                <input
+                  name="weight_kg"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.1"
+                  min={0}
+                  autoFocus
+                  required
+                  placeholder="0,0"
+                  className="h-11 w-full rounded-[12px] border border-border bg-background px-3 pr-10 text-base outline-none focus:border-primary"
+                />
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
+                  kg
+                </span>
+              </div>
+              {weightState.status === "error" && (
+                <p role="alert" className="mt-2 text-sm text-destructive">
+                  {weightState.message}
+                </p>
+              )}
+            </div>
+            <DrawerFooter>
+              <Button
+                type="submit"
+                disabled={weightPending}
+                className="h-11 rounded-[12px] text-base"
+              >
+                {weightPending ? "Bezig met opslaan…" : "Gewicht opslaan"}
+              </Button>
+              <DrawerClose
+                render={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-11 rounded-[12px] text-base"
+                  >
+                    Annuleren
+                  </Button>
+                }
+              />
+            </DrawerFooter>
+          </form>
+        </DrawerContent>
+      </Drawer>
+
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handlePhotoSelected}
+        className="hidden"
+      />
     </>
   );
 }
